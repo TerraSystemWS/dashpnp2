@@ -1,0 +1,24 @@
+{
+  "kind": "singleType",
+  "collectionName": "sobre_pnps",
+  "info": {
+    "singularName": "sobre-pnp",
+    "pluralName": "sobre-pnps",
+    "displayName": "SobrePNP"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "sobrepnp": {
+      "type": "blocks"
+    },
+    "politica": {
+      "type": "blocks"
+    },
+    "termo_uso": {
+      "type": "blocks"
+    }
+  }
+}

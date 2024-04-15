@@ -1,0 +1,31 @@
+{
+  "kind": "singleType",
+  "collectionName": "contatos",
+  "info": {
+    "singularName": "contato",
+    "pluralName": "contatos",
+    "displayName": "Contatos"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Local": {
+      "type": "text"
+    },
+    "phone": {
+      "type": "string",
+      "default": "(+238) 000 0000 / 000 0000"
+    },
+    "email": {
+      "type": "email"
+    },
+    "newsletterTitle": {
+      "type": "text"
+    },
+    "mapa": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "banners",
+  "info": {
+    "singularName": "banner",
+    "pluralName": "banners",
+    "displayName": "Banners"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "banners": {
+      "type": "component",
+      "repeatable": false,
+      "component": "image-box.image-box"
+    },
+    "destaque": {
+      "type": "boolean",
+      "default": false
+    },
+    "link": {
+      "type": "text"
+    }
+  }
+}
