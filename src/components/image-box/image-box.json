@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_image_box_image_boxes",
+  "info": {
+    "displayName": "imageBox"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "titulo": {
+      "type": "string"
+    }
+  }
+}
