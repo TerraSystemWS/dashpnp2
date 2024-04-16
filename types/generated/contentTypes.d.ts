@@ -951,6 +951,70 @@ export interface ApiContatoContato extends Schema.SingleType {
   };
 }
 
+export interface ApiNewsletterNewsletter extends Schema.CollectionType {
+  collectionName: 'newsletters';
+  info: {
+    singularName: 'newsletter';
+    pluralName: 'newsletters';
+    displayName: 'Newsletter';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    email: Attribute.Email & Attribute.Unique;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::newsletter.newsletter',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::newsletter.newsletter',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiNoticiaNoticia extends Schema.CollectionType {
+  collectionName: 'noticias';
+  info: {
+    singularName: 'noticia';
+    pluralName: 'noticias';
+    displayName: 'Noticias';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Titulo: Attribute.String;
+    subtitulo: Attribute.String;
+    destaque: Attribute.Boolean & Attribute.DefaultTo<false>;
+    capa: Attribute.Media;
+    descricao: Attribute.Blocks;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::noticia.noticia',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::noticia.noticia',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiSobrePnpSobrePnp extends Schema.SingleType {
   collectionName: 'sobre_pnps';
   info: {
@@ -1004,6 +1068,8 @@ declare module '@strapi/types' {
       'plugin::menus.menu-item': PluginMenusMenuItem;
       'api::banner.banner': ApiBannerBanner;
       'api::contato.contato': ApiContatoContato;
+      'api::newsletter.newsletter': ApiNewsletterNewsletter;
+      'api::noticia.noticia': ApiNoticiaNoticia;
       'api::sobre-pnp.sobre-pnp': ApiSobrePnpSobrePnp;
     }
   }
