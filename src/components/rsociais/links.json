@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_rsociais_links",
+  "info": {
+    "displayName": "Links"
+  },
+  "options": {},
+  "attributes": {
+    "canal": {
+      "type": "enumeration",
+      "enum": [
+        "<IoLogoFacebook/>",
+        "<IoLogoInstagram/>",
+        "<IoLogoYoutube/>",
+        "<IoLogoTwitter/>"
+      ]
+    },
+    "link": {
+      "type": "string",
+      "required": true
+    },
+    "Titulo": {
+      "type": "string"
+    }
+  }
+}

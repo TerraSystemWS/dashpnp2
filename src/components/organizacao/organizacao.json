@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_organizacao_organizacaos",
+  "info": {
+    "displayName": "Organização"
+  },
+  "options": {},
+  "attributes": {
+    "logo": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "link": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "enumeration",
+      "enum": [
+        "Ouro",
+        "Prata",
+        "Bronze",
+        "Diamante"
+      ],
+      "default": "Bronze"
+    },
+    "titulo": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

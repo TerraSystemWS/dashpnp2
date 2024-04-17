@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_regulamentos_regulamentos",
+  "info": {
+    "displayName": "Regulamentos"
+  },
+  "options": {},
+  "attributes": {
+    "titulo": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "blocks"
+    }
+  }
+}

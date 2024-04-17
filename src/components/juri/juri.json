@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_juri_juris",
+  "info": {
+    "displayName": "juri"
+  },
+  "options": {},
+  "attributes": {
+    "foto": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "nome": {
+      "type": "string",
+      "required": true
+    },
+    "descricao": {
+      "type": "blocks"
+    },
+    "titulo": {
+      "type": "string"
+    }
+  }
+}

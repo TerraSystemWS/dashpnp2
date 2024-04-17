@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_docs_documentos",
+  "info": {
+    "displayName": "documentos",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "titulo": {
+      "type": "string",
+      "required": true
+    },
+    "ficheiro": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "publico": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    }
+  }
+}

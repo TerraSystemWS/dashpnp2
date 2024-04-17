@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_categoria_categorias",
+  "info": {
+    "displayName": "Categoria"
+  },
+  "options": {},
+  "attributes": {
+    "titulo": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "blocks"
+    },
+    "capa": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}
