@@ -951,6 +951,98 @@ export interface ApiContatoContato extends Schema.SingleType {
   };
 }
 
+export interface ApiEdicaoEdicao extends Schema.CollectionType {
+  collectionName: 'edicoes';
+  info: {
+    singularName: 'edicao';
+    pluralName: 'edicoes';
+    displayName: 'Edi\u00E7\u00F5es';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    N_Edicao: Attribute.Integer & Attribute.Required;
+    juri: Attribute.Component<'juri.juri', true>;
+    regulamentos: Attribute.Component<'regulamentos.regulamentos', true>;
+    categoria: Attribute.Component<'categoria.categoria', true>;
+    galeria: Attribute.Component<'galeria.galeria', true>;
+    documents: Attribute.Component<'docs.documentos', true>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::edicao.edicao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::edicao.edicao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiInscricaoInscricao extends Schema.CollectionType {
+  collectionName: 'inscricoes';
+  info: {
+    singularName: 'inscricao';
+    pluralName: 'inscricoes';
+    displayName: 'Inscri\u00E7\u00F5es';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    NIF: Attribute.BigInteger;
+    url: Attribute.String & Attribute.Unique;
+    code: Attribute.String;
+    nome_completo: Attribute.String;
+    email: Attribute.Email;
+    sede: Attribute.Text;
+    telefone: Attribute.BigInteger;
+    categoria: Attribute.String;
+    nome_projeto: Attribute.String;
+    con_criativo: Attribute.Text;
+    coord_prod: Attribute.String;
+    dir_foto: Attribute.String;
+    dir_art: Attribute.String;
+    realizador: Attribute.String;
+    autor_jingle: Attribute.String;
+    designer: Attribute.String;
+    outras_consideracoes: Attribute.Text;
+    data_producao: Attribute.Date;
+    data_divulgacao: Attribute.Date;
+    data_apresentacao_publica: Attribute.Date;
+    editor: Attribute.String;
+    fileLink: Attribute.Component<'docs.documentos', true>;
+    votacao_publicas: Attribute.Relation<
+      'api::inscricao.inscricao',
+      'oneToMany',
+      'api::votacao-publica.votacao-publica'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::inscricao.inscricao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::inscricao.inscricao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiNewsletterNewsletter extends Schema.CollectionType {
   collectionName: 'newsletters';
   info: {
@@ -1015,6 +1107,43 @@ export interface ApiNoticiaNoticia extends Schema.CollectionType {
   };
 }
 
+export interface ApiParceiroParceiro extends Schema.CollectionType {
+  collectionName: 'parceiros';
+  info: {
+    singularName: 'parceiro';
+    pluralName: 'parceiros';
+    displayName: 'Parceiros';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    organizacao: Attribute.Component<'organizacao.organizacao', true>;
+    parceiros_padrinhos: Attribute.Component<'organizacao.organizacao', true>;
+    patrocinadores: Attribute.Component<'organizacao.organizacao', true>;
+    media_parteners: Attribute.Component<'organizacao.organizacao', true>;
+    parceiros_operacionais: Attribute.Component<
+      'organizacao.organizacao',
+      true
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::parceiro.parceiro',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::parceiro.parceiro',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiSobrePnpSobrePnp extends Schema.SingleType {
   collectionName: 'sobre_pnps';
   info: {
@@ -1046,6 +1175,41 @@ export interface ApiSobrePnpSobrePnp extends Schema.SingleType {
   };
 }
 
+export interface ApiVotacaoPublicaVotacaoPublica extends Schema.CollectionType {
+  collectionName: 'votacao_publicas';
+  info: {
+    singularName: 'votacao-publica';
+    pluralName: 'votacao-publicas';
+    displayName: 'votacaoPublica';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    nome_completo: Attribute.String & Attribute.Required;
+    inscricoe: Attribute.Relation<
+      'api::votacao-publica.votacao-publica',
+      'manyToOne',
+      'api::inscricao.inscricao'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::votacao-publica.votacao-publica',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::votacao-publica.votacao-publica',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1068,9 +1232,13 @@ declare module '@strapi/types' {
       'plugin::menus.menu-item': PluginMenusMenuItem;
       'api::banner.banner': ApiBannerBanner;
       'api::contato.contato': ApiContatoContato;
+      'api::edicao.edicao': ApiEdicaoEdicao;
+      'api::inscricao.inscricao': ApiInscricaoInscricao;
       'api::newsletter.newsletter': ApiNewsletterNewsletter;
       'api::noticia.noticia': ApiNoticiaNoticia;
+      'api::parceiro.parceiro': ApiParceiroParceiro;
       'api::sobre-pnp.sobre-pnp': ApiSobrePnpSobrePnp;
+      'api::votacao-publica.votacao-publica': ApiVotacaoPublicaVotacaoPublica;
     }
   }
 }
