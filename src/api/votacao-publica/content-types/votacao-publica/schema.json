@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "votacao_publicas",
+  "info": {
+    "singularName": "votacao-publica",
+    "pluralName": "votacao-publicas",
+    "displayName": "votacaoPublica",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nome_completo": {
+      "type": "string",
+      "required": true
+    },
+    "inscricoe": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::inscricao.inscricao",
+      "inversedBy": "votacao_publicas"
+    }
+  }
+}
