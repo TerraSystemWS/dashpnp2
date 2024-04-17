@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "edicoes",
+  "info": {
+    "singularName": "edicao",
+    "pluralName": "edicoes",
+    "displayName": "Edições"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "N_Edicao": {
+      "type": "integer",
+      "required": true
+    },
+    "juri": {
+      "type": "component",
+      "repeatable": true,
+      "component": "juri.juri"
+    },
+    "regulamentos": {
+      "type": "component",
+      "repeatable": true,
+      "component": "regulamentos.regulamentos"
+    },
+    "categoria": {
+      "type": "component",
+      "repeatable": true,
+      "component": "categoria.categoria"
+    },
+    "galeria": {
+      "type": "component",
+      "repeatable": true,
+      "component": "galeria.galeria"
+    },
+    "documents": {
+      "type": "component",
+      "repeatable": true,
+      "component": "docs.documentos"
+    }
+  }
+}

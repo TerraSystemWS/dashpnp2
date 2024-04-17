@@ -1,0 +1,91 @@
+{
+  "kind": "collectionType",
+  "collectionName": "inscricoes",
+  "info": {
+    "singularName": "inscricao",
+    "pluralName": "inscricoes",
+    "displayName": "Inscrições",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "NIF": {
+      "type": "biginteger"
+    },
+    "url": {
+      "type": "string",
+      "unique": true
+    },
+    "code": {
+      "type": "string"
+    },
+    "nome_completo": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "sede": {
+      "type": "text"
+    },
+    "telefone": {
+      "type": "biginteger"
+    },
+    "categoria": {
+      "type": "string"
+    },
+    "nome_projeto": {
+      "type": "string"
+    },
+    "con_criativo": {
+      "type": "text"
+    },
+    "coord_prod": {
+      "type": "string"
+    },
+    "dir_foto": {
+      "type": "string"
+    },
+    "dir_art": {
+      "type": "string"
+    },
+    "realizador": {
+      "type": "string"
+    },
+    "autor_jingle": {
+      "type": "string"
+    },
+    "designer": {
+      "type": "string"
+    },
+    "outras_consideracoes": {
+      "type": "text"
+    },
+    "data_producao": {
+      "type": "date"
+    },
+    "data_divulgacao": {
+      "type": "date"
+    },
+    "data_apresentacao_publica": {
+      "type": "date"
+    },
+    "editor": {
+      "type": "string"
+    },
+    "fileLink": {
+      "type": "component",
+      "repeatable": true,
+      "component": "docs.documentos"
+    },
+    "votacao_publicas": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::votacao-publica.votacao-publica",
+      "mappedBy": "inscricoe"
+    }
+  }
+}

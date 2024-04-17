@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "parceiros",
+  "info": {
+    "singularName": "parceiro",
+    "pluralName": "parceiros",
+    "displayName": "Parceiros"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "organizacao": {
+      "type": "component",
+      "repeatable": true,
+      "component": "organizacao.organizacao"
+    },
+    "parceiros_padrinhos": {
+      "type": "component",
+      "repeatable": true,
+      "component": "organizacao.organizacao"
+    },
+    "patrocinadores": {
+      "type": "component",
+      "repeatable": true,
+      "component": "organizacao.organizacao"
+    },
+    "media_parteners": {
+      "type": "component",
+      "repeatable": true,
+      "component": "organizacao.organizacao"
+    },
+    "parceiros_operacionais": {
+      "type": "component",
+      "repeatable": true,
+      "component": "organizacao.organizacao"
+    }
+  }
+}
