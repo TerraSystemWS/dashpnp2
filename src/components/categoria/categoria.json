@@ -1,22 +1,28 @@
 {
   "collectionName": "components_categoria_categorias",
   "info": {
-    "displayName": "Categoria"
+    "displayName": "Categoria",
+    "description": ""
   },
   "options": {},
   "attributes": {
     "titulo": {
       "type": "string"
     },
-    "descricao": {
-      "type": "blocks"
-    },
     "capa": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
+    },
+    "descricao": {
+      "type": "customField",
+      "options": {
+        "preset": "toolbar"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
     }
   }
 }

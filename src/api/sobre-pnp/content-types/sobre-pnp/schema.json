@@ -4,7 +4,8 @@
   "info": {
     "singularName": "sobre-pnp",
     "pluralName": "sobre-pnps",
-    "displayName": "SobrePNP"
+    "displayName": "SobrePNP",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -12,13 +13,25 @@
   "pluginOptions": {},
   "attributes": {
     "sobrepnp": {
-      "type": "blocks"
+      "type": "customField",
+      "options": {
+        "preset": "toolbar"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
     },
     "politica": {
-      "type": "blocks"
+      "type": "customField",
+      "options": {
+        "preset": "toolbar"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
     },
     "termo_uso": {
-      "type": "blocks"
+      "type": "customField",
+      "options": {
+        "preset": "toolbar"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
     }
   }
 }

@@ -1,7 +1,8 @@
 {
   "collectionName": "components_regulamentos_regulamentos",
   "info": {
-    "displayName": "Regulamentos"
+    "displayName": "Regulamentos",
+    "description": ""
   },
   "options": {},
   "attributes": {
@@ -9,7 +10,11 @@
       "type": "string"
     },
     "descricao": {
-      "type": "blocks"
+      "type": "customField",
+      "options": {
+        "preset": "toolbar"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
     }
   }
 }

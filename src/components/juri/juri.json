@@ -1,26 +1,32 @@
 {
   "collectionName": "components_juri_juris",
   "info": {
-    "displayName": "juri"
+    "displayName": "juri",
+    "description": ""
   },
   "options": {},
   "attributes": {
     "foto": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
     },
     "nome": {
       "type": "string",
       "required": true
     },
-    "descricao": {
-      "type": "blocks"
-    },
     "titulo": {
       "type": "string"
+    },
+    "descricao": {
+      "type": "customField",
+      "options": {
+        "preset": "toolbar"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
     }
   }
 }

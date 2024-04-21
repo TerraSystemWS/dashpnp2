@@ -4,11 +4,18 @@ export interface CategoriaCategoria extends Schema.Component {
   collectionName: 'components_categoria_categorias';
   info: {
     displayName: 'Categoria';
+    description: '';
   };
   attributes: {
     titulo: Attribute.String;
-    descricao: Attribute.Blocks;
     capa: Attribute.Media;
+    descricao: Attribute.RichText &
+      Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'toolbar';
+        }
+      >;
   };
 }
 
@@ -53,12 +60,19 @@ export interface JuriJuri extends Schema.Component {
   collectionName: 'components_juri_juris';
   info: {
     displayName: 'juri';
+    description: '';
   };
   attributes: {
     foto: Attribute.Media;
     nome: Attribute.String & Attribute.Required;
-    descricao: Attribute.Blocks;
     titulo: Attribute.String;
+    descricao: Attribute.RichText &
+      Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'toolbar';
+        }
+      >;
   };
 }
 
@@ -80,10 +94,17 @@ export interface RegulamentosRegulamentos extends Schema.Component {
   collectionName: 'components_regulamentos_regulamentos';
   info: {
     displayName: 'Regulamentos';
+    description: '';
   };
   attributes: {
     titulo: Attribute.String;
-    descricao: Attribute.Blocks;
+    descricao: Attribute.RichText &
+      Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'toolbar';
+        }
+      >;
   };
 }
 
