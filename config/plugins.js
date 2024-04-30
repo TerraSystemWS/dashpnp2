@@ -18,7 +18,8 @@ module.exports = () => ({
         config: {
           providerOptions: {
             localServer: {
-              maxage: 300000
+              maxage: 300000,
+              sizeLimit: 1024 * 1024 * 1024 // 256mb in bytes
             },
           },
         },
