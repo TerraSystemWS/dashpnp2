@@ -957,6 +957,7 @@ export interface ApiEdicaoEdicao extends Schema.CollectionType {
     singularName: 'edicao';
     pluralName: 'edicoes';
     displayName: 'Edi\u00E7\u00F5es';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -968,6 +969,7 @@ export interface ApiEdicaoEdicao extends Schema.CollectionType {
     categoria: Attribute.Component<'categoria.categoria', true>;
     galeria: Attribute.Component<'galeria.galeria', true>;
     documents: Attribute.Component<'docs.documentos', true>;
+    videos: Attribute.Component<'videos.videos', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
