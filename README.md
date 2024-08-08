@@ -1,5 +1,6 @@
 # 🚀 Getting started with Strapi
 
+ts
 Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
 
 ### `develop`
