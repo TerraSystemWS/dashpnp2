@@ -970,6 +970,8 @@ export interface ApiEdicaoEdicao extends Schema.CollectionType {
     galeria: Attribute.Component<'galeria.galeria', true>;
     documents: Attribute.Component<'docs.documentos', true>;
     videos: Attribute.Component<'videos.videos', true>;
+    data_inicio: Attribute.DateTime & Attribute.Required;
+    data_fim: Attribute.DateTime & Attribute.Required;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
