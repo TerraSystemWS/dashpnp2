@@ -4,7 +4,8 @@
   "info": {
     "singularName": "parceiro",
     "pluralName": "parceiros",
-    "displayName": "Parceiros"
+    "displayName": "Parceiros",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -32,6 +33,11 @@
       "component": "organizacao.organizacao"
     },
     "parceiros_operacionais": {
+      "type": "component",
+      "repeatable": true,
+      "component": "organizacao.organizacao"
+    },
+    "parceiros_opoios": {
       "type": "component",
       "repeatable": true,
       "component": "organizacao.organizacao"

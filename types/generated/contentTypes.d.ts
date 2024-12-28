@@ -1123,6 +1123,7 @@ export interface ApiParceiroParceiro extends Schema.CollectionType {
     singularName: 'parceiro';
     pluralName: 'parceiros';
     displayName: 'Parceiros';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1136,6 +1137,7 @@ export interface ApiParceiroParceiro extends Schema.CollectionType {
       'organizacao.organizacao',
       true
     >;
+    parceiros_opoios: Attribute.Component<'organizacao.organizacao', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
