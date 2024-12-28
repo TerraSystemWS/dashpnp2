@@ -26,14 +26,20 @@ module.exports = ({env}) => ({
       },
       email: {
         config: {
-          provider: 'sendmail', // For community providers pass the full package name (e.g. provider: 'strapi-provider-email-mandrill')
+          provider: 'nodemailer', // Use the nodemailer provider (SMTP)
           providerOptions: {
-           // apiKey: env('SENDGRID_API_KEY'),
+            host: process.env.SMTP_HOST,  // SMTP server for Gmail
+            port: process.env.SMTP_PORT,  // SMTP port (587 for TLS, 465 for SSL)
+            secure: true,  // Use TLS (true for port 465, false for 587)
+            auth: {
+              user: process.env.SMTP_USER, // Your email address (e.g., info@pnp.cv)
+              pass: process.env.SMTP_PASSWORD, // Your email password or app password
+            },
           },
           settings: {
-            defaultFrom: 'info@pnp.cv',
-            defaultReplyTo: 'info@pnp.cv',
-            testAddress: 'info@pnp.cv',
+            defaultFrom: process.env.SMTP_FROM,  // Your email sender
+            defaultReplyTo: process.env.SMTP_REPLYTO, // Default reply-to address
+            testAddress: process.env.SMTP_REPLYTO, // Test address for email sending
           },
         },
       },
