@@ -53,6 +53,12 @@
     "data_fim": {
       "type": "datetime",
       "required": true
+    },
+    "inscricoes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::inscricao.inscricao",
+      "mappedBy": "edicoes"
     }
   }
 }

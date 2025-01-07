@@ -86,6 +86,12 @@
       "relation": "oneToMany",
       "target": "api::votacao-publica.votacao-publica",
       "mappedBy": "inscricoe"
+    },
+    "edicoes": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::edicao.edicao",
+      "inversedBy": "inscricoes"
     }
   }
 }

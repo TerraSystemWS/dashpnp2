@@ -972,6 +972,11 @@ export interface ApiEdicaoEdicao extends Schema.CollectionType {
     videos: Attribute.Component<'videos.videos', true>;
     data_inicio: Attribute.DateTime & Attribute.Required;
     data_fim: Attribute.DateTime & Attribute.Required;
+    inscricoes: Attribute.Relation<
+      'api::edicao.edicao',
+      'oneToMany',
+      'api::inscricao.inscricao'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1028,6 +1033,11 @@ export interface ApiInscricaoInscricao extends Schema.CollectionType {
       'api::inscricao.inscricao',
       'oneToMany',
       'api::votacao-publica.votacao-publica'
+    >;
+    edicoes: Attribute.Relation<
+      'api::inscricao.inscricao',
+      'manyToOne',
+      'api::edicao.edicao'
     >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
