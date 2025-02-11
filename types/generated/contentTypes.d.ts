@@ -886,6 +886,48 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
+export interface ApiAvaliacaoAvaliacao extends Schema.CollectionType {
+  collectionName: 'avaliacaos';
+  info: {
+    singularName: 'avaliacao';
+    pluralName: 'avaliacaos';
+    displayName: 'Avaliacao';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    notas: Attribute.Enumeration<
+      ['insuficiente', 'Insuficiente', 'Suficiente', 'Bom', 'Excelente']
+    > &
+      Attribute.Required;
+    user_Juri: Attribute.Relation<
+      'api::avaliacao.avaliacao',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    inscricaoId: Attribute.Relation<
+      'api::avaliacao.avaliacao',
+      'oneToOne',
+      'api::inscricao.inscricao'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::avaliacao.avaliacao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::avaliacao.avaliacao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiBannerBanner extends Schema.CollectionType {
   collectionName: 'banners';
   info: {
@@ -1271,6 +1313,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'api::avaliacao.avaliacao': ApiAvaliacaoAvaliacao;
       'api::banner.banner': ApiBannerBanner;
       'api::contato.contato': ApiContatoContato;
       'api::edicao.edicao': ApiEdicaoEdicao;

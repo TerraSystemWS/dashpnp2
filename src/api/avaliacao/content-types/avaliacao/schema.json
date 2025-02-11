@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "avaliacaos",
+  "info": {
+    "singularName": "avaliacao",
+    "pluralName": "avaliacaos",
+    "displayName": "Avaliacao"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "notas": {
+      "type": "enumeration",
+      "enum": [
+        "insuficiente",
+        "Insuficiente",
+        "Suficiente",
+        "Bom",
+        "Excelente"
+      ],
+      "required": true
+    },
+    "user_Juri": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "inscricaoId": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::inscricao.inscricao"
+    }
+  }
+}
