@@ -1277,6 +1277,7 @@ export interface ApiVotacaoPublicaVotacaoPublica extends Schema.CollectionType {
       'manyToOne',
       'api::inscricao.inscricao'
     >;
+    email: Attribute.Email & Attribute.Required & Attribute.Unique;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

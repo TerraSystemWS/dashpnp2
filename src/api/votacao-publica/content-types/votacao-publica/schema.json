@@ -21,6 +21,11 @@
       "relation": "manyToOne",
       "target": "api::inscricao.inscricao",
       "inversedBy": "votacao_publicas"
+    },
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
     }
   }
 }
