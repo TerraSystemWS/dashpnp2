@@ -4,7 +4,8 @@
   "info": {
     "singularName": "avaliacao",
     "pluralName": "avaliacaos",
-    "displayName": "Avaliacao"
+    "displayName": "Avaliacao",
+    "description": ""
   },
   "options": {
     "draftAndPublish": false
@@ -22,12 +23,15 @@
       ],
       "required": true
     },
-    "user_Juri": {
+    "comentario": {
+      "type": "text"
+    },
+    "user_id": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
     },
-    "inscricaoId": {
+    "inscricoe": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::inscricao.inscricao"

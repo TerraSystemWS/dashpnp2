@@ -840,7 +840,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
     username: Attribute.String &
@@ -892,6 +891,7 @@ export interface ApiAvaliacaoAvaliacao extends Schema.CollectionType {
     singularName: 'avaliacao';
     pluralName: 'avaliacaos';
     displayName: 'Avaliacao';
+    description: '';
   };
   options: {
     draftAndPublish: false;
@@ -901,12 +901,13 @@ export interface ApiAvaliacaoAvaliacao extends Schema.CollectionType {
       ['insuficiente', 'Insuficiente', 'Suficiente', 'Bom', 'Excelente']
     > &
       Attribute.Required;
-    user_Juri: Attribute.Relation<
+    comentario: Attribute.Text;
+    user_id: Attribute.Relation<
       'api::avaliacao.avaliacao',
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    inscricaoId: Attribute.Relation<
+    inscricoe: Attribute.Relation<
       'api::avaliacao.avaliacao',
       'oneToOne',
       'api::inscricao.inscricao'
