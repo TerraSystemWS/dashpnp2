@@ -12,4 +12,4 @@ jobs:
     steps:
       - name: Trigger deployment
         run: |
-          curl -X POST http://176.31.106.116:3000/api/deploy/daaaeda78f1b9134fd6ac63696503d8b37f90b45fa336f23
+          curl -X POST http://5.135.59.63:3000/api/deploy/7e960a14584c5f787ff8289db1c39c08dc990fdbf128c0bd
