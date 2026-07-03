@@ -15,13 +15,8 @@ module.exports = ({env}) => ({
         },
     },
     upload: {
-        config: {
-          providerOptions: {
-           localServer: {
-              maxage: 300000,
-              sizeLimit: 512 * 1024 * 1024 // 512 MB em bytes
-            },
-          },
+      config: {
+          sizeLimit: 512 * 1024 * 1024, // 512MB
         },
       },
       email: {
