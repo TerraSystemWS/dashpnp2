@@ -13,7 +13,7 @@ module.exports = [
       jsonLimit: "512mb",
       textLimit: "512mb",
       formidable: {
-        maxFileSize: 512 * 1024 * 1024, // 512 MB
+        maxFileSize: 1024 * 1024 * 1024, // 1 GB
       },
     },
   },

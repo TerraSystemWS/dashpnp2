@@ -16,7 +16,7 @@ module.exports = ({env}) => ({
     },
     upload: {
       config: {
-          sizeLimit: 512 * 1024 * 1024, // 512MB
+          sizeLimit: 1024 * 1024 * 1024, // 1GB
         },
       },
       email: {
