@@ -20,5 +20,15 @@ module.exports = {
   bootstrap({ strapi }) {
     // Set the requestTimeout to 1,800,000 milliseconds (30 minutes):
     strapi.server.httpServer.requestTimeout = 30 * 60 * 1000;
+
+    // Periodically purge chunked-upload staging files left behind by
+    // abandoned uploads (tab closed mid-upload, etc).
+    const cleanupInterval = setInterval(() => {
+      strapi
+        .service('api::chunked-upload.chunked-upload')
+        .cleanupStaleUploads()
+        .catch((err) => strapi.log.error('Erro ao limpar uploads em chunks expirados:', err));
+    }, 60 * 60 * 1000);
+    cleanupInterval.unref();
   },
 };
