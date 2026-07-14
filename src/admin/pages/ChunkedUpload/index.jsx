@@ -11,7 +11,7 @@ import {
   ProgressBar,
   Typography,
 } from '@strapi/design-system';
-import { useFetchClient, useNotification } from '@strapi/helper-plugin';
+import { useNotification } from '@strapi/helper-plugin';
 import { CloudUpload } from '@strapi/icons';
 
 // Ficheiros grandes enviados de ligações lentas/instáveis nunca completam um
@@ -19,39 +19,67 @@ import { CloudUpload } from '@strapi/icons';
 // pedaços pequenos, cada um curto o suficiente para terminar mesmo em
 // ligações fracas, com retry por pedaço. Mesma lógica usada no formulário
 // público de candidatura (pnp.cv/components/Inscrever/FileUploadSection.tsx).
+//
+// Importante: estas chamadas usam fetch/XHR "crus", NÃO o useFetchClient do
+// admin. O useFetchClient injeta o token de admin em todos os pedidos e faz
+// logout global (clearAppStorage + reload) em qualquer resposta 401 — e as
+// rotas /api/chunked-upload/* são rotas públicas de content-api, que
+// rejeitam esse token com 401, o que estava a fazer logout ao utilizador a
+// meio do upload.
 const CHUNK_SIZE = 2 * 1024 * 1024; // 2MB
 const MAX_CHUNK_RETRIES = 3;
 
-const uploadChunkWithRetry = (post, uploadId, chunkIndex, blob, onChunkProgress) => {
-  const attempt = (retriesLeft) => {
-    const formData = new FormData();
-    formData.append('chunk', blob);
+const apiUrl = (path) => `${window.strapi.backendURL}${path}`;
 
-    return post(`/api/chunked-upload/${uploadId}/chunks/${chunkIndex}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-      onUploadProgress: ({ loaded }) => onChunkProgress(loaded),
-    }).catch((err) => {
-      if (retriesLeft <= 0) throw err;
-      onChunkProgress(0);
-      return new Promise((resolve) => {
-        setTimeout(resolve, 800 * (MAX_CHUNK_RETRIES - retriesLeft + 1));
-      }).then(() => attempt(retriesLeft - 1));
+const postJson = async (path, body) => {
+  const res = await fetch(apiUrl(path), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.json();
+};
+
+const uploadChunkWithRetry = (uploadId, chunkIndex, blob, onChunkProgress) => {
+  const attempt = (retriesLeft) =>
+    new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('chunk', blob);
+
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) onChunkProgress(event.loaded);
+      };
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== XMLHttpRequest.DONE) return;
+        if (xhr.status === 200) {
+          resolve();
+        } else if (retriesLeft > 0) {
+          onChunkProgress(0);
+          setTimeout(() => {
+            attempt(retriesLeft - 1).then(resolve, reject);
+          }, 800 * (MAX_CHUNK_RETRIES - retriesLeft + 1));
+        } else {
+          reject(new Error(`Falha ao enviar pedaço ${chunkIndex}`));
+        }
+      };
+      xhr.open('POST', apiUrl(`/api/chunked-upload/${uploadId}/chunks/${chunkIndex}`));
+      xhr.send(formData);
     });
-  };
 
   return attempt(MAX_CHUNK_RETRIES);
 };
 
-const uploadFileInChunks = async (post, file, onProgress) => {
+const uploadFileInChunks = async (file, onProgress) => {
   const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE));
 
-  const { data: initData } = await post('/api/chunked-upload/init', {
+  const { uploadId } = await postJson('/api/chunked-upload/init', {
     filename: file.name,
     mimetype: file.type || 'application/octet-stream',
     size: file.size,
     totalChunks,
   });
-  const { uploadId } = initData;
 
   let bytesSentBeforeCurrentChunk = 0;
   for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
@@ -60,7 +88,7 @@ const uploadFileInChunks = async (post, file, onProgress) => {
     const blob = file.slice(start, end);
 
     // eslint-disable-next-line no-await-in-loop
-    await uploadChunkWithRetry(post, uploadId, chunkIndex, blob, (loadedInChunk) => {
+    await uploadChunkWithRetry(uploadId, chunkIndex, blob, (loadedInChunk) => {
       const percent = Math.round(
         ((bytesSentBeforeCurrentChunk + loadedInChunk) * 100) / file.size
       );
@@ -70,13 +98,11 @@ const uploadFileInChunks = async (post, file, onProgress) => {
     bytesSentBeforeCurrentChunk += end - start;
   }
 
-  const { data: completeData } = await post(`/api/chunked-upload/${uploadId}/complete`, {});
-  return completeData;
+  return postJson(`/api/chunked-upload/${uploadId}/complete`, {});
 };
 
 const ChunkedUpload = () => {
   const [files, setFiles] = useState([]);
-  const { post } = useFetchClient();
   const toggleNotification = useNotification();
 
   const updateFile = (index, patch) => {
@@ -102,7 +128,7 @@ const ChunkedUpload = () => {
 
       try {
         // eslint-disable-next-line no-await-in-loop
-        await uploadFileInChunks(post, file, (percent) => updateFile(index, { progress: percent }));
+        await uploadFileInChunks(file, (percent) => updateFile(index, { progress: percent }));
         updateFile(index, { progress: 100, status: 'done' });
       } catch (err) {
         updateFile(index, { status: 'error' });
