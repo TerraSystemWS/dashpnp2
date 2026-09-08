@@ -1,0 +1,23 @@
+{
+  "kind": "singleType",
+  "collectionName": "manutencaos",
+  "info": {
+    "singularName": "manutencao",
+    "pluralName": "manutencaos",
+    "displayName": "Manutenção"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "ativo": {
+      "type": "boolean",
+      "default": false
+    },
+    "mensagem": {
+      "type": "text",
+      "default": "Estamos a fazer alguns ajustes no site. Voltamos em breve."
+    }
+  }
+}
