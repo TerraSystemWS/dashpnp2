@@ -904,12 +904,12 @@ export interface ApiAvaliacaoAvaliacao extends Schema.CollectionType {
     comentario: Attribute.Text;
     user_id: Attribute.Relation<
       'api::avaliacao.avaliacao',
-      'oneToOne',
+      'manyToOne',
       'plugin::users-permissions.user'
     >;
     inscricoe: Attribute.Relation<
       'api::avaliacao.avaliacao',
-      'oneToOne',
+      'manyToOne',
       'api::inscricao.inscricao'
     >;
     createdAt: Attribute.DateTime;
@@ -1093,6 +1093,37 @@ export interface ApiInscricaoInscricao extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::inscricao.inscricao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiManutencaoManutencao extends Schema.SingleType {
+  collectionName: 'manutencaos';
+  info: {
+    singularName: 'manutencao';
+    pluralName: 'manutencaos';
+    displayName: 'Manuten\u00E7\u00E3o';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    ativo: Attribute.Boolean & Attribute.DefaultTo<false>;
+    mensagem: Attribute.Text &
+      Attribute.DefaultTo<'Estamos a fazer alguns ajustes no site. Voltamos em breve.'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::manutencao.manutencao',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::manutencao.manutencao',
       'oneToOne',
       'admin::user'
     > &
@@ -1320,6 +1351,7 @@ declare module '@strapi/types' {
       'api::contato.contato': ApiContatoContato;
       'api::edicao.edicao': ApiEdicaoEdicao;
       'api::inscricao.inscricao': ApiInscricaoInscricao;
+      'api::manutencao.manutencao': ApiManutencaoManutencao;
       'api::newsletter.newsletter': ApiNewsletterNewsletter;
       'api::noticia.noticia': ApiNoticiaNoticia;
       'api::parceiro.parceiro': ApiParceiroParceiro;
