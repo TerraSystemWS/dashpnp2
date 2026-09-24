@@ -1,5 +1,7 @@
 'use strict';
 
+const setupAccounts = require('./bootstrap/accounts');
+
 module.exports = {
   /**
    * An asynchronous register function that runs before
@@ -17,7 +19,7 @@ module.exports = {
    * run jobs, or perform some special logic.
    */
   // bootstrap(/*{ strapi }*/) {},
-  bootstrap({ strapi }) {
+  async bootstrap({ strapi }) {
     // Set the requestTimeout to 1,800,000 milliseconds (30 minutes):
     strapi.server.httpServer.requestTimeout = 30 * 60 * 1000;
 
@@ -30,5 +32,7 @@ module.exports = {
         .catch((err) => strapi.log.error('Erro ao limpar uploads em chunks expirados:', err));
     }, 60 * 60 * 1000);
     cleanupInterval.unref();
+
+    await setupAccounts(strapi);
   },
 };

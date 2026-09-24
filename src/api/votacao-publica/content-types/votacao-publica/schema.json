@@ -25,7 +25,15 @@
     "email": {
       "type": "email",
       "required": true,
-      "unique": true
+      "unique": true,
+      "private": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "votacao_publica",
+      "private": true
     }
   }
 }

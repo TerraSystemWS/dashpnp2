@@ -13,26 +13,31 @@
   "pluginOptions": {},
   "attributes": {
     "NIF": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "private": true
     },
     "url": {
       "type": "string",
-      "unique": true
+      "unique": true,
+      "private": true
     },
     "code": {
-      "type": "string"
+      "type": "string",
+      "private": true
     },
     "nome_completo": {
       "type": "string"
     },
     "email": {
-      "type": "email"
+      "type": "email",
+      "private": true
     },
     "sede": {
       "type": "text"
     },
     "telefone": {
-      "type": "biginteger"
+      "type": "biginteger",
+      "private": true
     },
     "categoria": {
       "type": "string"
@@ -92,6 +97,13 @@
       "relation": "manyToOne",
       "target": "api::edicao.edicao",
       "inversedBy": "inscricoes"
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "inscricoes",
+      "private": true
     }
   }
 }

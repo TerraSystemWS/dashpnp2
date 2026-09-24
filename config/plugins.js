@@ -14,6 +14,14 @@ module.exports = ({env}) => ({
           maxDepth: 3,
         },
     },
+    'users-permissions': {
+      config: {
+        // Campos extra aceites no registo público (além de username/email/password).
+        register: {
+          allowedFields: ['nome'],
+        },
+      },
+    },
     upload: {
       config: {
           sizeLimit: 1024 * 1024 * 1024, // 1GB

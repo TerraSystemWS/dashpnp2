@@ -64,6 +64,21 @@
       "target": "plugin::users-permissions.role",
       "inversedBy": "users",
       "configurable": false
+    },
+    "nome": {
+      "type": "string"
+    },
+    "inscricoes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::inscricao.inscricao",
+      "mappedBy": "owner"
+    },
+    "votacao_publica": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::votacao-publica.votacao-publica",
+      "mappedBy": "user"
     }
   }
 }
