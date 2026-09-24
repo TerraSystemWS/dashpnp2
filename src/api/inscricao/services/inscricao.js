@@ -78,7 +78,8 @@ module.exports = createCoreService(UID, ({ strapi }) => ({
   <li><strong>Projeto:</strong> ${escapeHtml(entity.nome_projeto)}</li>
   <li><strong>Categoria:</strong> ${escapeHtml(entity.categoria)}</li>
 </ul>
-<p>Para concluir, confirme que atesta a veracidade das informações submetidas e que deseja participar no concurso:</p>
+<p>Para concluir, confirme a candidatura e a seguinte declaração de responsabilidade:</p>
+<blockquote>Declaro que o trabalho submetido respeita as normas legais e éticas vigentes em Cabo Verde e aceito integralmente o <a href="${clientUrl}/regulamentos">regulamento</a> do Prémio Nacional de Publicidade PALMEIRA.</blockquote>
 <p><a href="${link}">Confirmar candidatura</a></p>
 ${prazo ? `<p>A candidatura tem de ser confirmada até <strong>${prazo}</strong>; caso contrário será eliminada.</p>` : ''}
 <p>Se não submeteu esta candidatura, ignore este email.</p>
