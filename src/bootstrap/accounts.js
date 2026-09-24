@@ -37,6 +37,13 @@ const JURY_ONLY_ACTIONS = ['api::votacao-publica.votacao-publica.find'];
 
 // Escrita direta nas inscrições/votos deixa de ser possível sem passar
 // pelas rotas com dono.
+// Avaliações do júri só se criam pela rota controlada (create) e não se
+// alteram nem apagam pela API — em nenhum papel.
+const AVALIACAO_REVOKED = [
+  'api::avaliacao.avaliacao.update',
+  'api::avaliacao.avaliacao.delete',
+];
+
 const REVOKED_ACTIONS = {
   public: [
     'api::inscricao.inscricao.create',
@@ -138,7 +145,7 @@ const configurePermissions = async (strapi) => {
   const roles = await roleQuery.findMany({ where: { type: { $in: ['public', 'authenticated', ...JURY_ROLES] } } });
 
   for (const role of roles) {
-    const revoked = REVOKED_ACTIONS[role.type] ?? [];
+    const revoked = [...(REVOKED_ACTIONS[role.type] ?? []), ...AVALIACAO_REVOKED];
     if (revoked.length) {
       // deleteMany não aceita filtros por relação — resolve os ids primeiro.
       const toRevoke = await permQuery.findMany({ where: { role: role.id, action: { $in: revoked } }, select: ['id'] });
