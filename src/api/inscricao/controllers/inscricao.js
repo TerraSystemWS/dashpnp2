@@ -59,6 +59,16 @@ const toResponse = (entity) => {
   };
 };
 
+// Documentos marcados como não públicos (BI, NIF, comprovativos…) só
+// aparecem ao júri — tira-os da resposta para o público.
+const stripPrivateFiles = (item) => {
+  const files = item?.attributes?.fileLink;
+  if (Array.isArray(files)) {
+    item.attributes.fileLink = files.filter((f) => f.publico === true);
+  }
+  return item;
+};
+
 // Devolve a inscrição só se for do utilizador; caso contrário, null
 // (o controller responde 404, sem revelar se o url existe).
 const findMine = async (ctx, populate) => {
@@ -76,20 +86,24 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
   // na query expunha os rascunhos a qualquer pessoa.
   async find(ctx) {
     const user = await loadRole(ctx.state.user);
-    if (!isJury(user)) {
-      ctx.query = { ...ctx.query, publicationState: 'live' };
-    }
-    return super.find(ctx);
+    if (isJury(user)) return super.find(ctx);
+
+    ctx.query = { ...ctx.query, publicationState: 'live' };
+    const res = await super.find(ctx);
+    (res?.data ?? []).forEach(stripPrivateFiles);
+    return res;
   },
 
   // O findOne core devolve rascunhos por ID — só júri pode ver não publicadas.
   async findOne(ctx) {
     const user = await loadRole(ctx.state.user);
-    if (!isJury(user)) {
-      const entity = await strapi.entityService.findOne(UID, ctx.params.id, { fields: ['publishedAt'] });
-      if (!entity || !entity.publishedAt) return ctx.notFound();
-    }
-    return super.findOne(ctx);
+    if (isJury(user)) return super.findOne(ctx);
+
+    const entity = await strapi.entityService.findOne(UID, ctx.params.id, { fields: ['publishedAt'] });
+    if (!entity || !entity.publishedAt) return ctx.notFound();
+    const res = await super.findOne(ctx);
+    stripPrivateFiles(res?.data);
+    return res;
   },
 
   // Dados de contacto do candidato (campos privados) — só para o júri.
