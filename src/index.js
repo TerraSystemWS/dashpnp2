@@ -33,6 +33,15 @@ module.exports = {
     }, 60 * 60 * 1000);
     cleanupInterval.unref();
 
+    // Candidaturas não confirmadas por email dentro do prazo são eliminadas.
+    const expiredInterval = setInterval(() => {
+      strapi
+        .service('api::inscricao.inscricao')
+        .cleanupExpired()
+        .catch((err) => strapi.log.error('Erro ao eliminar candidaturas expiradas:', err));
+    }, 60 * 60 * 1000);
+    expiredInterval.unref();
+
     await setupAccounts(strapi);
   },
 };

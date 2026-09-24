@@ -688,53 +688,6 @@ export interface PluginMenusMenuItem extends Schema.CollectionType {
   };
 }
 
-export interface PluginI18NLocale extends Schema.CollectionType {
-  collectionName: 'i18n_locale';
-  info: {
-    singularName: 'locale';
-    pluralName: 'locales';
-    collectionName: 'locales';
-    displayName: 'Locale';
-    description: '';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  pluginOptions: {
-    'content-manager': {
-      visible: false;
-    };
-    'content-type-builder': {
-      visible: false;
-    };
-  };
-  attributes: {
-    name: Attribute.String &
-      Attribute.SetMinMax<
-        {
-          min: 1;
-          max: 50;
-        },
-        number
-      >;
-    code: Attribute.String & Attribute.Unique;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'plugin::i18n.locale',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'plugin::i18n.locale',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
 export interface PluginUsersPermissionsPermission
   extends Schema.CollectionType {
   collectionName: 'up_permissions';
@@ -868,6 +821,17 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    nome: Attribute.String;
+    inscricoes: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::inscricao.inscricao'
+    >;
+    votacao_publica: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToOne',
+      'api::votacao-publica.votacao-publica'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -878,6 +842,53 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'plugin::users-permissions.user',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface PluginI18NLocale extends Schema.CollectionType {
+  collectionName: 'i18n_locale';
+  info: {
+    singularName: 'locale';
+    pluralName: 'locales';
+    collectionName: 'locales';
+    displayName: 'Locale';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.SetMinMax<
+        {
+          min: 1;
+          max: 50;
+        },
+        number
+      >;
+    code: Attribute.String & Attribute.Unique;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::i18n.locale',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::i18n.locale',
       'oneToOne',
       'admin::user'
     > &
@@ -1050,13 +1061,13 @@ export interface ApiInscricaoInscricao extends Schema.CollectionType {
     draftAndPublish: true;
   };
   attributes: {
-    NIF: Attribute.BigInteger;
-    url: Attribute.String & Attribute.Unique;
-    code: Attribute.String;
+    NIF: Attribute.BigInteger & Attribute.Private;
+    url: Attribute.String & Attribute.Private & Attribute.Unique;
+    code: Attribute.String & Attribute.Private;
     nome_completo: Attribute.String;
-    email: Attribute.Email;
+    email: Attribute.Email & Attribute.Private;
     sede: Attribute.Text;
-    telefone: Attribute.BigInteger;
+    telefone: Attribute.BigInteger & Attribute.Private;
     categoria: Attribute.String;
     nome_projeto: Attribute.String;
     con_criativo: Attribute.Text;
@@ -1082,6 +1093,16 @@ export interface ApiInscricaoInscricao extends Schema.CollectionType {
       'manyToOne',
       'api::edicao.edicao'
     >;
+    owner: Attribute.Relation<
+      'api::inscricao.inscricao',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    > &
+      Attribute.Private;
+    submetida_em: Attribute.DateTime;
+    confirmada_em: Attribute.DateTime;
+    expira_em: Attribute.DateTime;
+    confirmacao_token: Attribute.String & Attribute.Private;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -1308,7 +1329,16 @@ export interface ApiVotacaoPublicaVotacaoPublica extends Schema.CollectionType {
       'manyToOne',
       'api::inscricao.inscricao'
     >;
-    email: Attribute.Email & Attribute.Required & Attribute.Unique;
+    email: Attribute.Email &
+      Attribute.Required &
+      Attribute.Private &
+      Attribute.Unique;
+    user: Attribute.Relation<
+      'api::votacao-publica.votacao-publica',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    > &
+      Attribute.Private;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1342,10 +1372,10 @@ declare module '@strapi/types' {
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::menus.menu': PluginMenusMenu;
       'plugin::menus.menu-item': PluginMenusMenuItem;
-      'plugin::i18n.locale': PluginI18NLocale;
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'plugin::i18n.locale': PluginI18NLocale;
       'api::avaliacao.avaliacao': ApiAvaliacaoAvaliacao;
       'api::banner.banner': ApiBannerBanner;
       'api::contato.contato': ApiContatoContato;

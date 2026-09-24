@@ -22,6 +22,8 @@ const ACCOUNT_ACTIONS = [
   'api::inscricao.inscricao.mineUpdate',
   'api::inscricao.inscricao.mineAttachFiles',
   'api::inscricao.inscricao.mineDeleteFile',
+  'api::inscricao.inscricao.mineSubmit',
+  'api::inscricao.inscricao.mineResend',
   'api::votacao-publica.votacao-publica.me',
   'api::votacao-publica.votacao-publica.votar',
   'api::chunked-upload.chunked-upload.init',

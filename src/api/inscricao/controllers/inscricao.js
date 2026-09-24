@@ -45,6 +45,7 @@ const toResponse = (entity) => {
   if (!entity) return null;
   const { id, fileLink, ...rest } = entity;
   delete rest.owner;
+  delete rest.confirmacao_token;
   return {
     id,
     attributes: {
@@ -68,6 +69,28 @@ const stripPrivateFiles = (item) => {
   }
   return item;
 };
+
+// Depois de submetida (à espera de confirmação ou confirmada) ou aceite
+// pela organização, a candidatura deixa de poder ser alterada.
+const lockedReason = (entity) => {
+  if (entity.publishedAt) return 'A candidatura já foi aceite e não pode ser alterada.';
+  if (entity.submetida_em) return 'A candidatura já foi submetida e não pode ser alterada.';
+  return null;
+};
+
+// Campos obrigatórios para submeter — os mesmos que o formulário marca
+// como passo concluído.
+const missingFields = (entity) => {
+  const missing = [];
+  if (!entity.nome_completo) missing.push('Nome completo');
+  if (!entity.categoria) missing.push('Categoria');
+  if (!entity.nome_projeto) missing.push('Nome do projeto');
+  if (!entity.coord_prod) missing.push('Coordenação de produção');
+  if (!(entity.fileLink ?? []).length) missing.push('Documentos');
+  return missing;
+};
+
+const service = () => strapi.service(UID);
 
 // Devolve a inscrição só se for do utilizador; caso contrário, null
 // (o controller responde 404, sem revelar se o url existe).
@@ -120,7 +143,7 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
   async mineList(ctx) {
     const entities = await strapi.entityService.findMany(UID, {
       filters: { owner: { id: ctx.state.user.id } },
-      fields: ['url', 'nome_projeto', 'categoria', 'publishedAt', 'createdAt', 'updatedAt'],
+      fields: ['url', 'nome_projeto', 'categoria', 'publishedAt', 'createdAt', 'updatedAt', 'submetida_em', 'confirmada_em', 'expira_em'],
       publicationState: 'preview',
       sort: { createdAt: 'desc' },
     });
@@ -137,6 +160,7 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
         owner: user.id,
         email: user.email,
         nome_completo: user.nome || null,
+        expira_em: new Date(Date.now() + service().PRAZO_DIAS * 24 * 60 * 60 * 1000),
         publishedAt: null,
       },
       fields: ['url'],
@@ -153,7 +177,8 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
   async mineUpdate(ctx) {
     const entity = await findMine(ctx);
     if (!entity) return ctx.notFound();
-    if (entity.publishedAt) return ctx.forbidden('A candidatura já foi aceite e não pode ser alterada.');
+    const locked = lockedReason(entity);
+    if (locked) return ctx.forbidden(locked);
 
     const body = ctx.request.body?.data ?? {};
     const data = {};
@@ -169,7 +194,8 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
   async mineAttachFiles(ctx) {
     const entity = await findMine(ctx, FILE_POPULATE);
     if (!entity) return ctx.notFound();
-    if (entity.publishedAt) return ctx.forbidden('A candidatura já foi aceite e não pode ser alterada.');
+    const locked = lockedReason(entity);
+    if (locked) return ctx.forbidden(locked);
 
     const fileIds = ctx.request.body?.fileIds;
     if (!Array.isArray(fileIds) || fileIds.length === 0 || !fileIds.every(Number.isInteger)) {
@@ -191,7 +217,8 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
   async mineDeleteFile(ctx) {
     const entity = await findMine(ctx, FILE_POPULATE);
     if (!entity) return ctx.notFound();
-    if (entity.publishedAt) return ctx.forbidden('A candidatura já foi aceite e não pode ser alterada.');
+    const locked = lockedReason(entity);
+    if (locked) return ctx.forbidden(locked);
 
     const fileId = Number(ctx.params.fileId);
     const current = entity.fileLink ?? [];
@@ -208,5 +235,68 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
     if (file) await strapi.plugin('upload').service('upload').remove(file);
 
     ctx.body = { data: toResponse(updated) };
+  },
+
+  // "Concluir inscrição": bloqueia a candidatura e envia ao dono o email
+  // para atestar os dados e confirmar a participação.
+  async mineSubmit(ctx) {
+    const entity = await findMine(ctx, FILE_POPULATE);
+    if (!entity) return ctx.notFound();
+    const locked = lockedReason(entity);
+    if (locked) return ctx.forbidden(locked);
+    if (entity.expira_em && new Date(entity.expira_em) < new Date()) {
+      return ctx.forbidden('O prazo para submeter esta candidatura terminou.');
+    }
+
+    const missing = missingFields(entity);
+    if (missing.length) return ctx.badRequest('Faltam campos obrigatórios.', { missing });
+
+    const { token, hash } = service().newConfirmationToken();
+    const updated = await strapi.entityService.update(UID, entity.id, {
+      data: { submetida_em: new Date(), confirmacao_token: hash },
+      populate: FILE_POPULATE,
+    });
+    try {
+      await service().sendConfirmationEmail(updated, ctx.state.user.email, token);
+    } catch (err) {
+      strapi.log.error('Erro ao enviar email de confirmação da candidatura:', err);
+    }
+    ctx.body = { data: toResponse(updated) };
+  },
+
+  async mineResend(ctx) {
+    const entity = await findMine(ctx);
+    if (!entity) return ctx.notFound();
+    if (!entity.submetida_em || entity.confirmada_em) return ctx.badRequest('Não há confirmação pendente.');
+
+    const { token, hash } = service().newConfirmationToken();
+    const updated = await strapi.entityService.update(UID, entity.id, { data: { confirmacao_token: hash } });
+    try {
+      await service().sendConfirmationEmail(updated, ctx.state.user.email, token);
+    } catch (err) {
+      strapi.log.error('Erro ao reenviar email de confirmação da candidatura:', err);
+      return ctx.internalServerError('Não foi possível enviar o email.');
+    }
+    ctx.body = { data: { ok: true } };
+  },
+
+  // Link do email (via página do site). POST de propósito: os scanners de
+  // links dos clientes de email fazem GET e confirmariam sozinhos.
+  async confirmar(ctx) {
+    const token = ctx.request.body?.token;
+    if (typeof token !== 'string' || !/^[0-9a-f]{64}$/.test(token)) return ctx.badRequest('Link inválido ou expirado.');
+
+    const [entity] = await strapi.entityService.findMany(UID, {
+      filters: { confirmacao_token: service().hashToken(token), confirmada_em: { $null: true } },
+      publicationState: 'preview',
+      fields: ['id', 'nome_projeto', 'expira_em'],
+      limit: 1,
+    });
+    if (!entity || (entity.expira_em && new Date(entity.expira_em) < new Date())) {
+      return ctx.badRequest('Link inválido ou expirado.');
+    }
+
+    await strapi.entityService.update(UID, entity.id, { data: { confirmada_em: new Date(), confirmacao_token: null } });
+    ctx.body = { data: { nome_projeto: entity.nome_projeto } };
   },
 }));

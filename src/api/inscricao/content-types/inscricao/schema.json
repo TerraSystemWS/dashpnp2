@@ -104,6 +104,19 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "inscricoes",
       "private": true
+    },
+    "submetida_em": {
+      "type": "datetime"
+    },
+    "confirmada_em": {
+      "type": "datetime"
+    },
+    "expira_em": {
+      "type": "datetime"
+    },
+    "confirmacao_token": {
+      "type": "string",
+      "private": true
     }
   }
 }
