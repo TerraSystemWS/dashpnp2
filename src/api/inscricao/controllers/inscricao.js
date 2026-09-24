@@ -99,6 +99,11 @@ const missingFields = (entity) => {
 
 const service = () => strapi.service(UID);
 
+// Grande Prémio Palmeira e Prémio Público são atribuídos pelo júri/público
+// entre os concorrentes — não são categorias em que se possa inscrever.
+const normalize = (s) => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const isCategoriaCandidatavel = (titulo) => !/grande premio|premio publico/.test(normalize(titulo));
+
 // Devolve a inscrição só se for do utilizador; caso contrário, null
 // (o controller responde 404, sem revelar se o url existe).
 const findMine = async (ctx, populate = EDICAO_POPULATE) => {
@@ -201,6 +206,9 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
       if (key in body) data[key] = body[key];
     }
     data.email = ctx.state.user.email;
+    if (data.categoria && !isCategoriaCandidatavel(data.categoria)) {
+      return ctx.badRequest('Não é possível candidatar-se a esta categoria.');
+    }
 
     const updated = await strapi.entityService.update(UID, entity.id, { data, populate: FILE_POPULATE });
     ctx.body = { data: toResponse(updated) };
