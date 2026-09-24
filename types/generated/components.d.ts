@@ -34,6 +34,18 @@ export interface DocsDocumentos extends Schema.Component {
   };
 }
 
+export interface EquipaMembro extends Schema.Component {
+  collectionName: 'components_equipa_membros';
+  info: {
+    displayName: 'membro';
+    description: 'Membro da equipa t\u00E9cnica de uma candidatura (nome + fun\u00E7\u00E3o)';
+  };
+  attributes: {
+    nome: Attribute.String & Attribute.Required;
+    funcao: Attribute.String;
+  };
+}
+
 export interface GaleriaGaleria extends Schema.Component {
   collectionName: 'components_galeria_galerias';
   info: {
@@ -144,6 +156,7 @@ declare module '@strapi/types' {
     export interface Components {
       'categoria.categoria': CategoriaCategoria;
       'docs.documentos': DocsDocumentos;
+      'equipa.membro': EquipaMembro;
       'galeria.galeria': GaleriaGaleria;
       'image-box.image-box': ImageBoxImageBox;
       'juri.juri': JuriJuri;

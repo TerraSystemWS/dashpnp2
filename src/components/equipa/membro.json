@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_equipa_membros",
+  "info": {
+    "displayName": "membro",
+    "description": "Membro da equipa técnica de uma candidatura (nome + função)"
+  },
+  "options": {},
+  "attributes": {
+    "nome": {
+      "type": "string",
+      "required": true
+    },
+    "funcao": {
+      "type": "string"
+    }
+  }
+}

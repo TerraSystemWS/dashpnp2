@@ -1065,6 +1065,7 @@ export interface ApiInscricaoInscricao extends Schema.CollectionType {
     url: Attribute.String & Attribute.Private & Attribute.Unique;
     code: Attribute.String & Attribute.Private;
     nome_completo: Attribute.String;
+    responsavel: Attribute.String & Attribute.Private;
     email: Attribute.Email & Attribute.Private;
     sede: Attribute.Text;
     telefone: Attribute.BigInteger & Attribute.Private;
@@ -1081,6 +1082,8 @@ export interface ApiInscricaoInscricao extends Schema.CollectionType {
     data_producao: Attribute.Date;
     data_divulgacao: Attribute.Date;
     data_apresentacao_publica: Attribute.Date;
+    meios_divulgacao: Attribute.JSON;
+    equipa: Attribute.Component<'equipa.membro', true>;
     editor: Attribute.String;
     fileLink: Attribute.Component<'docs.documentos', true>;
     votacao_publicas: Attribute.Relation<

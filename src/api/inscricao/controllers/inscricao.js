@@ -18,7 +18,7 @@ const JURY_ROLES = ['jurado', 'responsavel'];
 // Campos que o candidato pode editar (os três passos do formulário).
 // email/owner/url/code/publishedAt nunca vêm do cliente.
 const EDITABLE_FIELDS = [
-  'nome_completo', 'NIF', 'sede', 'telefone',
+  'nome_completo', 'responsavel', 'NIF', 'sede', 'telefone',
   'categoria', 'nome_projeto', 'con_criativo',
   'coord_prod', 'dir_foto', 'dir_art', 'realizador', 'autor_jingle',
   'designer', 'editor', 'outras_consideracoes',
@@ -27,8 +27,25 @@ const EDITABLE_FIELDS = [
 
 const EDICAO_POPULATE = { edicoes: { fields: ['data_fim'] } };
 
+// Descrição da peça: máximo de palavras definido no regulamento.
+const MAX_PALAVRAS_DESCRICAO = 200;
+const countWords = (text) => String(text ?? '').trim().split(/\s+/).filter(Boolean).length;
+
+// Listas vindas do cliente: só strings curtas, sem campos extra.
+const cleanStr = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+const sanitizeMeios = (value) =>
+  Array.isArray(value) ? [...new Set(value.map((m) => cleanStr(m, 60)).filter(Boolean))].slice(0, 20) : [];
+const sanitizeEquipa = (value) =>
+  Array.isArray(value)
+    ? value
+        .map((m) => ({ nome: cleanStr(m?.nome, 120), funcao: cleanStr(m?.funcao, 120) }))
+        .filter((m) => m.nome)
+        .slice(0, 40)
+    : [];
+
 const FILE_POPULATE = {
   ...EDICAO_POPULATE,
+  equipa: true,
   fileLink: { populate: { ficheiro: { fields: ['id', 'name', 'hash', 'ext', 'mime', 'url'] } } },
 };
 
@@ -89,10 +106,14 @@ const lockedReason = (entity) => {
 // como passo concluído.
 const missingFields = (entity) => {
   const missing = [];
-  if (!entity.nome_completo) missing.push('Nome completo');
+  if (!entity.nome_completo) missing.push('Concorrente');
+  if (!entity.responsavel) missing.push('Responsável pela inscrição');
   if (!entity.categoria) missing.push('Categoria');
-  if (!entity.nome_projeto) missing.push('Nome do projeto');
-  if (!entity.coord_prod) missing.push('Coordenação de produção');
+  if (!entity.nome_projeto) missing.push('Título da peça');
+  if (!entity.con_criativo) missing.push('Breve descrição');
+  else if (countWords(entity.con_criativo) > MAX_PALAVRAS_DESCRICAO) missing.push(`Breve descrição (máx. ${MAX_PALAVRAS_DESCRICAO} palavras)`);
+  if (!(entity.meios_divulgacao ?? []).length) missing.push('Meios de divulgação');
+  if (!(entity.equipa ?? []).length) missing.push('Equipa técnica');
   if (!(entity.fileLink ?? []).length) missing.push('Documentos');
   return missing;
 };
@@ -146,7 +167,7 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
     const user = await loadRole(ctx.state.user);
     if (!isJury(user)) return ctx.forbidden();
     const entity = await strapi.entityService.findOne(UID, ctx.params.id, {
-      fields: ['nome_completo', 'NIF', 'email', 'sede', 'telefone'],
+      fields: ['nome_completo', 'responsavel', 'NIF', 'email', 'sede', 'telefone'],
     });
     if (!entity) return ctx.notFound();
     ctx.body = { data: entity };
@@ -205,6 +226,8 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
     for (const key of EDITABLE_FIELDS) {
       if (key in body) data[key] = body[key];
     }
+    if ('meios_divulgacao' in body) data.meios_divulgacao = sanitizeMeios(body.meios_divulgacao);
+    if ('equipa' in body) data.equipa = sanitizeEquipa(body.equipa);
     data.email = ctx.state.user.email;
     if (data.categoria && !isCategoriaCandidatavel(data.categoria)) {
       return ctx.badRequest('Não é possível candidatar-se a esta categoria.');

@@ -28,6 +28,10 @@
     "nome_completo": {
       "type": "string"
     },
+    "responsavel": {
+      "type": "string",
+      "private": true
+    },
     "email": {
       "type": "email",
       "private": true
@@ -77,6 +81,14 @@
     },
     "data_apresentacao_publica": {
       "type": "date"
+    },
+    "meios_divulgacao": {
+      "type": "json"
+    },
+    "equipa": {
+      "type": "component",
+      "repeatable": true,
+      "component": "equipa.membro"
     },
     "editor": {
       "type": "string"
