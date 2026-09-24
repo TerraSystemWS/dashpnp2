@@ -111,11 +111,13 @@
     "confirmada_em": {
       "type": "datetime"
     },
-    "expira_em": {
-      "type": "datetime"
-    },
     "confirmacao_token": {
       "type": "string",
+      "private": true
+    },
+    "requer_confirmacao": {
+      "type": "boolean",
+      "default": false,
       "private": true
     }
   }

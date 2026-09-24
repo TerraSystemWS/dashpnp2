@@ -1101,8 +1101,10 @@ export interface ApiInscricaoInscricao extends Schema.CollectionType {
       Attribute.Private;
     submetida_em: Attribute.DateTime;
     confirmada_em: Attribute.DateTime;
-    expira_em: Attribute.DateTime;
     confirmacao_token: Attribute.String & Attribute.Private;
+    requer_confirmacao: Attribute.Boolean &
+      Attribute.Private &
+      Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

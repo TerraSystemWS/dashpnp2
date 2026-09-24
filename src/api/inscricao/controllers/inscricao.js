@@ -25,7 +25,10 @@ const EDITABLE_FIELDS = [
   'data_producao', 'data_divulgacao', 'data_apresentacao_publica',
 ];
 
+const EDICAO_POPULATE = { edicoes: { fields: ['data_fim'] } };
+
 const FILE_POPULATE = {
+  ...EDICAO_POPULATE,
   fileLink: { populate: { ficheiro: { fields: ['id', 'name', 'hash', 'ext', 'mime', 'url'] } } },
 };
 
@@ -40,12 +43,16 @@ const loadRole = async (user) => {
   return { ...user, role: full?.role };
 };
 
+// O prazo não é guardado — vem da data_fim da edição (ver service.prazo).
+const withPrazo = (entity) => {
+  const { edicoes, requer_confirmacao, confirmacao_token, owner, ...rest } = entity;
+  return { ...rest, expira_em: service().prazo(entity)?.toISOString() ?? null };
+};
+
 // Formato { id, attributes } igual ao resto da API, para o frontend não mudar.
 const toResponse = (entity) => {
   if (!entity) return null;
-  const { id, fileLink, ...rest } = entity;
-  delete rest.owner;
-  delete rest.confirmacao_token;
+  const { id, fileLink, ...rest } = withPrazo(entity);
   return {
     id,
     attributes: {
@@ -94,7 +101,7 @@ const service = () => strapi.service(UID);
 
 // Devolve a inscrição só se for do utilizador; caso contrário, null
 // (o controller responde 404, sem revelar se o url existe).
-const findMine = async (ctx, populate) => {
+const findMine = async (ctx, populate = EDICAO_POPULATE) => {
   const [entity] = await strapi.entityService.findMany(UID, {
     filters: { url: ctx.params.url, owner: { id: ctx.state.user.id } },
     publicationState: 'preview',
@@ -143,16 +150,23 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
   async mineList(ctx) {
     const entities = await strapi.entityService.findMany(UID, {
       filters: { owner: { id: ctx.state.user.id } },
-      fields: ['url', 'nome_projeto', 'categoria', 'publishedAt', 'createdAt', 'updatedAt', 'submetida_em', 'confirmada_em', 'expira_em'],
+      fields: ['url', 'nome_projeto', 'categoria', 'publishedAt', 'createdAt', 'updatedAt', 'submetida_em', 'confirmada_em', 'requer_confirmacao'],
+      populate: EDICAO_POPULATE,
       publicationState: 'preview',
       sort: { createdAt: 'desc' },
     });
-    ctx.body = { data: entities };
+    ctx.body = { data: entities.map(withPrazo) };
   },
 
   async mineCreate(ctx) {
     const { user } = ctx.state;
     if (!user.confirmed) return ctx.forbidden('Confirme o seu email antes de criar uma candidatura.');
+
+    const edicao = await service().edicaoAtual();
+    if (!edicao) return ctx.forbidden('Não há nenhuma edição com candidaturas abertas.');
+    if (service().expirada({ requer_confirmacao: true, edicoes: edicao })) {
+      return ctx.forbidden(`As candidaturas para a ${edicao.N_Edicao}ª edição já terminaram.`);
+    }
 
     const entity = await strapi.entityService.create(UID, {
       data: {
@@ -160,7 +174,8 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
         owner: user.id,
         email: user.email,
         nome_completo: user.nome || null,
-        expira_em: new Date(Date.now() + service().PRAZO_DIAS * 24 * 60 * 60 * 1000),
+        edicoes: edicao.id,
+        requer_confirmacao: true,
         publishedAt: null,
       },
       fields: ['url'],
@@ -244,8 +259,8 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
     if (!entity) return ctx.notFound();
     const locked = lockedReason(entity);
     if (locked) return ctx.forbidden(locked);
-    if (entity.expira_em && new Date(entity.expira_em) < new Date()) {
-      return ctx.forbidden('O prazo para submeter esta candidatura terminou.');
+    if (service().expirada(entity)) {
+      return ctx.forbidden('O prazo de candidaturas desta edição terminou.');
     }
 
     const missing = missingFields(entity);
@@ -270,7 +285,7 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
     if (!entity.submetida_em || entity.confirmada_em) return ctx.badRequest('Não há confirmação pendente.');
 
     const { token, hash } = service().newConfirmationToken();
-    const updated = await strapi.entityService.update(UID, entity.id, { data: { confirmacao_token: hash } });
+    const updated = await strapi.entityService.update(UID, entity.id, { data: { confirmacao_token: hash }, populate: EDICAO_POPULATE });
     try {
       await service().sendConfirmationEmail(updated, ctx.state.user.email, token);
     } catch (err) {
@@ -289,10 +304,11 @@ module.exports = createCoreController(UID, ({ strapi }) => ({
     const [entity] = await strapi.entityService.findMany(UID, {
       filters: { confirmacao_token: service().hashToken(token), confirmada_em: { $null: true } },
       publicationState: 'preview',
-      fields: ['id', 'nome_projeto', 'expira_em'],
+      fields: ['id', 'nome_projeto', 'requer_confirmacao'],
+      populate: EDICAO_POPULATE,
       limit: 1,
     });
-    if (!entity || (entity.expira_em && new Date(entity.expira_em) < new Date())) {
+    if (!entity || service().expirada(entity)) {
       return ctx.badRequest('Link inválido ou expirado.');
     }
 

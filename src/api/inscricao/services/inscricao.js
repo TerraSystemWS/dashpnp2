@@ -12,8 +12,8 @@ const { createCoreService } = require('@strapi/strapi').factories;
 
 const UID = 'api::inscricao.inscricao';
 
-// Prazo para submeter e confirmar, contado a partir da criação.
-const PRAZO_DIAS = 7;
+const EDICAO_UID = 'api::edicao.edicao';
+const TZ = 'Atlantic/Cape_Verde';
 
 // Só o hash fica na base de dados — quem lê a BD não consegue confirmar.
 const hashToken = (token) => crypto.createHash('sha256').update(String(token)).digest('hex');
@@ -22,11 +22,42 @@ const escapeHtml = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const formatDate = (value) =>
-  new Date(value).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Atlantic/Cape_Verde' });
+  new Date(value).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: TZ });
+
+// Prazo = fim do dia (hora de Cabo Verde, UTC-1 sem horário de verão) da
+// data_fim da edição, para "até dia X" incluir o dia X inteiro.
+const endOfDay = (dataFim) => {
+  if (!dataFim) return null;
+  const [y, m, d] = new Date(dataFim).toLocaleDateString('en-CA', { timeZone: TZ }).split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999) + 60 * 60 * 1000);
+};
 
 module.exports = createCoreService(UID, ({ strapi }) => ({
-  PRAZO_DIAS,
   hashToken,
+
+  // Edição em que as novas candidaturas entram: a mais recente publicada.
+  async edicaoAtual() {
+    const [edicao] = await strapi.entityService.findMany(EDICAO_UID, {
+      fields: ['id', 'N_Edicao', 'data_fim'],
+      sort: { N_Edicao: 'desc' },
+      publicationState: 'live',
+      limit: 1,
+    });
+    return edicao ?? null;
+  },
+
+  // Prazo para submeter e confirmar. Só as candidaturas criadas com este
+  // fluxo (requer_confirmacao) têm prazo; é lido sempre da edição, para
+  // acompanhar alterações à data_fim feitas no painel.
+  prazo(entity) {
+    if (!entity?.requer_confirmacao) return null;
+    return endOfDay(entity.edicoes?.data_fim);
+  },
+
+  expirada(entity) {
+    const prazo = this.prazo(entity);
+    return !!prazo && prazo < new Date();
+  },
 
   // Gera um token novo (o anterior deixa de valer) e devolve-o em claro
   // para ir no link do email.
@@ -38,7 +69,8 @@ module.exports = createCoreService(UID, ({ strapi }) => ({
   async sendConfirmationEmail(entity, email, token) {
     const clientUrl = (process.env.CLIENT_URL || '').replace(/\/$/, '');
     const link = `${clientUrl}/inscricao/confirmar?token=${token}`;
-    const prazo = entity.expira_em ? formatDate(entity.expira_em) : null;
+    const prazoDate = this.prazo(entity);
+    const prazo = prazoDate ? formatDate(prazoDate) : null;
 
     const html = `<p>Olá${entity.nome_completo ? ` ${escapeHtml(entity.nome_completo)}` : ''},</p>
 <p>Recebemos a submissão da sua candidatura ao Prémio Nacional de Publicidade:</p>
@@ -61,15 +93,20 @@ ${prazo ? `<p>A candidatura tem de ser confirmada até <strong>${prazo}</strong>
     });
   },
 
-  // Apaga as candidaturas não confirmadas cujo prazo passou, com os
-  // ficheiros que carregaram. As antigas (sem expira_em) nunca são tocadas.
+  // Apaga as candidaturas não confirmadas depois do fim do período de
+  // candidaturas da edição, com os ficheiros que carregaram. As antigas
+  // (sem requer_confirmacao) nunca são tocadas.
   async cleanupExpired() {
-    const expired = await strapi.entityService.findMany(UID, {
-      filters: { expira_em: { $notNull: true, $lt: new Date().toISOString() }, confirmada_em: { $null: true } },
+    const pending = await strapi.entityService.findMany(UID, {
+      filters: { requer_confirmacao: true, confirmada_em: { $null: true } },
       publicationState: 'preview',
-      fields: ['id'],
-      populate: { fileLink: { populate: { ficheiro: { fields: ['id'] } } } },
+      fields: ['id', 'requer_confirmacao'],
+      populate: {
+        edicoes: { fields: ['data_fim'] },
+        fileLink: { populate: { ficheiro: { fields: ['id'] } } },
+      },
     });
+    const expired = pending.filter((i) => this.expirada(i));
 
     for (const inscricao of expired) {
       const fileIds = (inscricao.fileLink ?? []).map((f) => f.ficheiro?.id).filter(Boolean);
